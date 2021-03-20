@@ -17,16 +17,25 @@ LDFLAGS  = -fuse-linker-plugin
 LDFLAGS += `pkg-config --libs --static libalx-base`
 LDFLAGS += `pkg-config --libs --static libalx-robot-ur`
 
-all: love
+.PHONY: all
+all: .tmp/love
 
-love.s: love.c
-	@echo "	CC	$@";
-	$(CC) $(CFLAGS) -S $< -o $@;
+.tmp/love.s: src/love.c | .tmp
+	@echo '	CC	$@';
+	@$(CC) $(CFLAGS) -S $< -o $@;
 
-love.o: love.s
-	@echo "	AS	$@";
-	$(AS) $< -o $@;
+.tmp/love.o: .tmp/love.s | .tmp
+	@echo '	AS	$@';
+	@$(AS) $< -o $@;
 
-love: love.o
-	@echo "	CC	$@";
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS);
+.tmp/love: .tmp/love.o | .tmp
+	@echo '	CC	$@';
+	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS);
+
+.tmp:
+	@mkdir -p .tmp;
+
+.PHONY: clean
+clean:
+	@echo '	RM	.tmp/';
+	-@rm -rf .tmp/;
